@@ -24,34 +24,35 @@ func main() {
 	}
 	lines := bytes.Split(data, newline)
 
-	var prevsum int
-	for iWin := 0; iWin < 3; iWin++ {
-		num, err := strconv.Atoi(string(lines[iWin]))
+	var pos, depth int
+	for iLine := 0; iLine < len(lines); iLine++ {
+        if 0 == len(lines[iLine]) {
+            break
+        }
+		tokens := bytes.Split(lines[iLine], []byte(" "))
+		offset, err := strconv.Atoi(string(tokens[1]))
 		if nil != err {
-			fmt.Fprintf(os.Stderr, "error parsing line: failed to parse first window: %v\n", err)
+			fmt.Fprintf(os.Stderr, "error while converting from offset: %v\n", err)
 			return
 		}
-		prevsum += num
+		switch string(tokens[0]) {
+		case "forward":
+			pos += offset
+			continue
+		case "down":
+			depth += offset
+			continue
+		case "up":
+			depth -= offset
+			continue
+		}
+		fmt.Fprintf(
+			os.Stderr,
+			"error while parsing command string: unknown command string %s\n",
+			tokens[0],
+		)
+		return
 	}
-	var count uint = 0
-	for iLine := 3; iLine < len(lines); iLine++ {
-		if 0 == len(lines[iLine]) {
-			break
-		}
-		var sum int
-		for iWin := 0; iWin < 3; iWin++ {
-			l := lines[iLine-2+iWin]
-			num, err := strconv.Atoi(string(l))
-			if nil != err {
-				fmt.Fprintf(os.Stderr, "error parsing line: failed to parse window: %v\n", err)
-				return
-			}
-			sum += num
-		}
-		if prevsum < sum {
-			count++
-		}
-		prevsum = sum
-	}
-	fmt.Printf("# of larger measurements: %d\n", count)
+
+	fmt.Printf("horizontal position x final depth: %d\n", pos*depth)
 }
