@@ -24,25 +24,34 @@ func main() {
 	}
 	lines := bytes.Split(data, newline)
 
-	var count uint = 0
-	prevnum, err := strconv.Atoi(string(lines[0]))
-	if nil != err {
-		fmt.Fprintf(os.Stderr, "error parsing line: failed to parse first line: %v\n", err)
-		return
-	}
-	for i := 1; i < len(lines); i++ {
-		if 0 == len(lines[i]) {
-			break
-		}
-		num, err := strconv.Atoi(string(lines[i]))
+	var prevsum int
+	for iWin := 0; iWin < 3; iWin++ {
+		num, err := strconv.Atoi(string(lines[iWin]))
 		if nil != err {
-			fmt.Fprintf(os.Stderr, "error parsing line: failed to parse line: %v\n", err)
+			fmt.Fprintf(os.Stderr, "error parsing line: failed to parse first window: %v\n", err)
 			return
 		}
-		if prevnum < num {
+		prevsum += num
+	}
+	var count uint = 0
+	for iLine := 3; iLine < len(lines); iLine++ {
+		if 0 == len(lines[iLine]) {
+			break
+		}
+		var sum int
+		for iWin := 0; iWin < 3; iWin++ {
+			l := lines[iLine-2+iWin]
+			num, err := strconv.Atoi(string(l))
+			if nil != err {
+				fmt.Fprintf(os.Stderr, "error parsing line: failed to parse window: %v\n", err)
+				return
+			}
+			sum += num
+		}
+		if prevsum < sum {
 			count++
 		}
-		prevnum = num
+		prevsum = sum
 	}
 	fmt.Printf("# of larger measurements: %d\n", count)
 }
