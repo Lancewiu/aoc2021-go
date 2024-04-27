@@ -24,11 +24,11 @@ func main() {
 	}
 	lines := bytes.Split(data, newline)
 
-	var pos, depth int
+	var pos, depth, aim int
 	for iLine := 0; iLine < len(lines); iLine++ {
-        if 0 == len(lines[iLine]) {
-            break
-        }
+		if 0 == len(lines[iLine]) {
+			break
+		}
 		tokens := bytes.Split(lines[iLine], []byte(" "))
 		offset, err := strconv.Atoi(string(tokens[1]))
 		if nil != err {
@@ -38,12 +38,13 @@ func main() {
 		switch string(tokens[0]) {
 		case "forward":
 			pos += offset
+			depth += aim * offset
 			continue
 		case "down":
-			depth += offset
+			aim += offset
 			continue
 		case "up":
-			depth -= offset
+			aim -= offset
 			continue
 		}
 		fmt.Fprintf(
